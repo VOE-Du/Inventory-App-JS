@@ -1,10 +1,4 @@
 import Storage from "./storage.js";
-import {
-    parseQuantityDisplay,
-    nextQuantityAfterToggle,
-    validateNewProductDraft,
-} from "./productValidation.js";
-import { t } from "./i18n.js";
 
 function formatLocalDateFromUtc(utcDateText) {
     const date = new Date(utcDateText);
@@ -67,31 +61,11 @@ export default class ProductView {
     }
 
     addNewProduct() {
-        const qty = parseQuantityDisplay(this.pdtQty.innerText);
-        const check = validateNewProductDraft({
-            title: this.pdtTitle.value,
-            location: this.pdtLocation.value,
-            category: this.ctgSelect.value,
-            quantity: qty,
-        });
+        const qty = Number(this.pdtQty.innerText);
 
-        if (!check.ok) {
-            if (check.errors.includes("title")) {
-                alert(t("productTitleError"));
-                return;
-            }
-            if (check.errors.includes("location")) {
-                alert(t("locationError"));
-                return;
-            }
-            if (check.errors.includes("category")) {
-                alert(t("categoryError"));
-                return;
-            }
-            if (check.errors.includes("quantity")) {
-                alert(t("quantityError"));
-                return;
-            }
+        if (this.pdtTitle.value.trim().length < 2) {
+            alert("your entered title for category must be at least 2 characters!!!");
+            return;
         }
 
         const newProduct = {
@@ -153,7 +127,7 @@ export default class ProductView {
             deleteButton.type = "button";
             deleteButton.dataset.id = product.id;
             deleteButton.className = "pdt-dlt-btn flex items-center justify-center";
-            deleteButton.setAttribute("aria-label", t("deleteProduct"));
+            deleteButton.setAttribute("aria-label", "Delete product");
 
             const svgNS = "http://www.w3.org/2000/svg";
 
@@ -162,7 +136,7 @@ export default class ProductView {
             deleteIcon.setAttribute("focusable", "false");
             deleteIcon.setAttribute(
                 "class",
-                "stroke-red-500 h:h-d6 d:w-6 ss:h-5 ss:w-5 cursor-pointer"
+                "stroke-red-500 dd:h-6 dd:w-6 ss:h-5 ss:w-5 cursor-pointer"
             );
             deleteIcon.setAttribute("viewBox", "0 0 24 24");
             deleteIcon.setAttribute("stroke-width", "1.5");
@@ -199,16 +173,12 @@ export default class ProductView {
 
     toggleProductQty(e) {
         const id = e.currentTarget.id;
-        const current = parseQuantityDisplay(this.pdtQty.innerText);
+        const current = Number(this.pdtQty.innerText);
 
         if (id === "incQty") {
-            this.pdtQty.innerText = String(
-                nextQuantityAfterToggle(current, true)
-            );
+            this.pdtQty.innerText = String(current + 1);
         } else if (id === "decQty") {
-            this.pdtQty.innerText = String(
-                nextQuantityAfterToggle(current, false)
-            );
+            this.pdtQty.innerText = String(current - 1);
         }
     }
 
