@@ -2,8 +2,11 @@
   "devDependencies": {
     "@babel/core": "^7.25.9",
     "@babel/preset-env": "^7.25.9",
+    "babel-jest": "^29.7.0",
     "babel-loader": "^9.2.1",
     "css-loader": "^7.1.2",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "loader": "^2.1.1",
     "style": "^0.0.3",
     "tailwindcss": "^3.4.13",
@@ -108,12 +111,15 @@
   },
   "scripts": {
     "dev": "npx tailwindcss -i ./src/css/tailwind.css -o ./public/build/style.css --watch ",
-    "tailwind-minify": " npx tailwindcss -i ./src/css/tailwind.css -o ./public/build/style.css --minify  ",
-    "app-babel": "babel src/js/app.js -o public/build/babel/app.js --presets @babel/preset-env ",
+    "tailwind-minify": "npx tailwindcss -i ./src/css/tailwind.css -o ./public/build/style.css --minify",
+    "productValidation-babel": "babel src/js/productValidation.js -o public/build/babel/productValidation.js --presets @babel/preset-env ",
     "categoryView-babel": "babel src/js/categoryView.js -o public/build/babel/categoryView.js --presets @babel/preset-env  ",
     "productView-babel": "babel src/js/productView.js -o public/build/babel/productView.js --presets @babel/preset-env  ",
+    "app-babel": "babel src/js/app.js -o public/build/babel/app.js --presets @babel/preset-env ",
     "storage-babel": "babel src/js/storage.js -o public/build/babel/storage.js --presets @babel/preset-env  ",
-    "build": "webpack"
+    "babel-all": "npm run storage-babel && npm run productValidation-babel && npm run categoryView-babel && npm run productView-babel && npm run app-babel",
+    "build": "npm run tailwind-minify && npm run babel-all && webpack",
+    "test": "jest --config jest.config.cjs"
   },
   "author": "Abolfazl Rahmati",
   "license": "MIT"

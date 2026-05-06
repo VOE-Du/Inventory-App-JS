@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 var _storage = _interopRequireDefault(require("./storage.js"));
+var _productValidation = require("./productValidation.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
@@ -18,19 +19,6 @@ function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = 
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-function formatLocalDateFromUtc(utcDateText) {
-  var date = new Date(utcDateText);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
-}
-function getProductDisplayDate(product) {
-  if (product.createdAt) {
-    return formatLocalDateFromUtc(product.createdAt);
-  }
-  return product.persianDate || "";
-}
 var ProductView = exports["default"] = /*#__PURE__*/function () {
   function ProductView() {
     var _this = this;
@@ -70,10 +58,30 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
   }, {
     key: "addNewProduct",
     value: function addNewProduct() {
-      var qty = Number(this.pdtQty.innerText);
-      if (this.pdtTitle.value.trim().length < 2) {
-        alert("your entered title for category must be at least 2 characters!!!");
-        return;
+      var qty = (0, _productValidation.parseQuantityDisplay)(this.pdtQty.innerText);
+      var check = (0, _productValidation.validateNewProductDraft)({
+        title: this.pdtTitle.value,
+        location: this.pdtLocation.value,
+        category: this.ctgSelect.value,
+        quantity: qty
+      });
+      if (!check.ok) {
+        if (check.errors.includes("title")) {
+          alert("Your product title must be at least 2 non-space characters.");
+          return;
+        }
+        if (check.errors.includes("location")) {
+          alert("Please select a valid storage location.");
+          return;
+        }
+        if (check.errors.includes("category")) {
+          alert("Please select a category.");
+          return;
+        }
+        if (check.errors.includes("quantity")) {
+          alert("Quantity must be zero or a positive whole number.");
+          return;
+        }
       }
       var newProduct = {
         id: new Date().getTime(),
@@ -81,7 +89,7 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
         quantity: String(qty),
         location: this.pdtLocation.value,
         category: this.ctgSelect.value,
-        createdAt: new Date().toISOString()
+        persianDate: new Date().toLocaleDateString("fa-IR")
       };
       this.pdtTitle.value = "";
       this.pdtQty.innerText = "0";
@@ -112,7 +120,7 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
         category.textContent = product.category;
         var date = document.createElement("p");
         date.className = "basis-[16%] font-vazir ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
-        date.textContent = getProductDisplayDate(product);
+        date.textContent = product.persianDate || "";
         var quantity = document.createElement("p");
         quantity.className = "border-2 border-slate-400 p-1 rounded-2xl ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
         quantity.textContent = product.quantity;
@@ -156,11 +164,11 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
     key: "toggleProductQty",
     value: function toggleProductQty(e) {
       var id = e.currentTarget.id;
-      var current = Number(this.pdtQty.innerText);
+      var current = (0, _productValidation.parseQuantityDisplay)(this.pdtQty.innerText);
       if (id === "incQty") {
-        this.pdtQty.innerText = String(current + 1);
+        this.pdtQty.innerText = String((0, _productValidation.nextQuantityAfterToggle)(current, true));
       } else if (id === "decQty") {
-        this.pdtQty.innerText = String(current - 1);
+        this.pdtQty.innerText = String((0, _productValidation.nextQuantityAfterToggle)(current, false));
       }
     }
   }, {

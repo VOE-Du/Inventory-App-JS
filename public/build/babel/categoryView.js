@@ -16,19 +16,17 @@ var CategoryView = exports["default"] = /*#__PURE__*/function () {
   function CategoryView() {
     var _this = this;
     _classCallCheck(this, CategoryView);
-    // variables
     this.ctgTitleInput = document.querySelector("#categoryTitle");
     this.ctgDescInput = document.querySelector("#categoryDescription");
     this.ctgCacelBtn = document.querySelector("#categoryCanelBtn");
     this.ctgAddBtn = document.querySelector("#categoryAddNewBtn");
     this.ctgSelect = document.querySelector("#categoriesSelect");
-    // event listeners
     this.ctgAddBtn.addEventListener("click", function () {
       _this.addNewCategory();
     });
     this.ctgCacelBtn.addEventListener("click", function () {
-      _this.ctgTitleInput.value = ' ';
-      _this.ctgDescInput.value = ' ';
+      _this.ctgTitleInput.value = "";
+      _this.ctgDescInput.value = "";
     });
   }
   return _createClass(CategoryView, [{
@@ -40,37 +38,32 @@ var CategoryView = exports["default"] = /*#__PURE__*/function () {
     key: "addNewCategory",
     value: function addNewCategory() {
       if (this.ctgTitleInput.value.trim().length >= 2) {
-        // create new object for each category
         var newCategroy = {
           id: new Date().getTime(),
-          title: this.ctgTitleInput.value,
-          description: this.ctgDescInput.value
+          title: this.ctgTitleInput.value.trim(),
+          description: this.ctgDescInput.value.trim()
         };
-        // reset inputs value
-        this.ctgTitleInput.value = ' ';
-        this.ctgDescInput.value = ' ';
-        // save category to local storage
+        this.ctgTitleInput.value = "";
+        this.ctgDescInput.value = "";
         var savedCategories = _storage["default"].getCategories();
-        // edit => ... save
-        // new => ... save
+        var norm = function norm(t) {
+          return String(t).trim().toLowerCase();
+        };
         var existedItem = savedCategories.find(function (c) {
-          return c.title === newCategroy.title;
+          return norm(c.title) === norm(newCategroy.title);
         });
         if (existedItem) {
-          // edit
           existedItem.title = newCategroy.title;
           existedItem.description = newCategroy.description;
           alert("this category name has been added before so we will update the category description!");
+          _storage["default"].saveCategories(savedCategories);
+          this.instantCtgUpdate(savedCategories);
           return;
-        } else {
-          // new
-          newCategroy.id = new Date().getTime();
-          newCategroy.createdAt = new Date().toISOString();
-          savedCategories.push(newCategroy);
         }
-        console.log(savedCategories);
+        newCategroy.id = new Date().getTime();
+        newCategroy.createdAt = new Date().toISOString();
+        savedCategories.push(newCategroy);
         _storage["default"].saveCategories(savedCategories);
-        // instant update html category list from storage
         this.instantCtgUpdate(savedCategories);
       } else {
         alert("your entered title for category must be at least 2 characters!!!");
@@ -83,14 +76,11 @@ var CategoryView = exports["default"] = /*#__PURE__*/function () {
       var ctgListTitles = categories.map(function (obj) {
         return obj.title.trim();
       });
-      console.log(categories);
-      // create option for each category
       this.ctgSelect.innerHTML = " <option selected value=\"none\">- select category -</option>  ";
       ctgListTitles.forEach(function (option) {
         var newOption = document.createElement("option");
         newOption.value = option;
         newOption.textContent = option;
-        // append new created option to select tg
         _this2.ctgSelect.append(newOption);
       });
     }

@@ -1,26 +1,9 @@
 import Storage from "./storage.js";
-
-function formatLocalDateFromUtc(utcDateText) {
-    const date = new Date(utcDateText);
-
-    if (Number.isNaN(date.getTime())) {
-        return "";
-    }
-
-    return [
-        date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, "0"),
-        String(date.getDate()).padStart(2, "0"),
-    ].join("-");
-}
-
-function getProductDisplayDate(product) {
-    if (product.createdAt) {
-        return formatLocalDateFromUtc(product.createdAt);
-    }
-
-    return product.persianDate || "";
-}
+import {
+    parseQuantityDisplay,
+    nextQuantityAfterToggle,
+    validateNewProductDraft,
+} from "./productValidation.js";
 
 export default class ProductView {
     constructor() {
@@ -61,11 +44,33 @@ export default class ProductView {
     }
 
     addNewProduct() {
-        const qty = Number(this.pdtQty.innerText);
+        const qty = parseQuantityDisplay(this.pdtQty.innerText);
+        const check = validateNewProductDraft({
+            title: this.pdtTitle.value,
+            location: this.pdtLocation.value,
+            category: this.ctgSelect.value,
+            quantity: qty,
+        });
 
-        if (this.pdtTitle.value.trim().length < 2) {
-            alert("your entered title for category must be at least 2 characters!!!");
-            return;
+        if (!check.ok) {
+            if (check.errors.includes("title")) {
+                alert(
+                    "Your product title must be at least 2 non-space characters."
+                );
+                return;
+            }
+            if (check.errors.includes("location")) {
+                alert("Please select a valid storage location.");
+                return;
+            }
+            if (check.errors.includes("category")) {
+                alert("Please select a category.");
+                return;
+            }
+            if (check.errors.includes("quantity")) {
+                alert("Quantity must be zero or a positive whole number.");
+                return;
+            }
         }
 
         const newProduct = {
@@ -74,7 +79,7 @@ export default class ProductView {
             quantity: String(qty),
             location: this.pdtLocation.value,
             category: this.ctgSelect.value,
-            createdAt: new Date().toISOString(),
+            persianDate: new Date().toLocaleDateString("fa-IR"),
         };
 
         this.pdtTitle.value = "";
@@ -116,7 +121,7 @@ export default class ProductView {
             const date = document.createElement("p");
             date.className =
                 "basis-[16%] font-vazir ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
-            date.textContent = getProductDisplayDate(product);
+            date.textContent = product.persianDate || "";
 
             const quantity = document.createElement("p");
             quantity.className =
@@ -173,12 +178,16 @@ export default class ProductView {
 
     toggleProductQty(e) {
         const id = e.currentTarget.id;
-        const current = Number(this.pdtQty.innerText);
+        const current = parseQuantityDisplay(this.pdtQty.innerText);
 
         if (id === "incQty") {
-            this.pdtQty.innerText = String(current + 1);
+            this.pdtQty.innerText = String(
+                nextQuantityAfterToggle(current, true)
+            );
         } else if (id === "decQty") {
-            this.pdtQty.innerText = String(current - 1);
+            this.pdtQty.innerText = String(
+                nextQuantityAfterToggle(current, false)
+            );
         }
     }
 
