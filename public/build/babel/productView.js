@@ -18,11 +18,23 @@ function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = 
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function formatLocalDateFromUtc(utcDateText) {
+  var date = new Date(utcDateText);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+}
+function getProductDisplayDate(product) {
+  if (product.createdAt) {
+    return formatLocalDateFromUtc(product.createdAt);
+  }
+  return product.persianDate || "";
+}
 var ProductView = exports["default"] = /*#__PURE__*/function () {
   function ProductView() {
     var _this = this;
     _classCallCheck(this, ProductView);
-    // variables
     this.pdtTitle = document.querySelector("#productTitle");
     this.pdtIncQty = document.querySelector("#incQty");
     this.pdtDecQty = document.querySelector("#decQty");
@@ -34,7 +46,6 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
     this.toggleBtns = document.querySelectorAll(".toggleBtn");
     this.searchInput = document.querySelector("#searchInput");
     this.sortSelect = document.querySelector("#sort");
-    // event listeners
     this.pdtAddNew.addEventListener("click", function () {
       _this.addNewProduct();
     });
@@ -59,65 +70,97 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
   }, {
     key: "addNewProduct",
     value: function addNewProduct() {
-      if (this.pdtTitle.value.trim().length >= 2) {
-        // create new object for each category
-        var newProduct = {
-          id: new Date().getTime(),
-          title: this.pdtTitle.value.trim(),
-          quantity: this.pdtQty.innerText,
-          location: this.pdtLocation.value,
-          category: this.ctgSelect.value,
-          persianDate: new Date().toLocaleDateString("fa-IR")
-        };
-        // reset inputs value
-        this.pdtTitle.value = ' ';
-        this.pdtQty.innerText = 0, this.pdtLocation.value = "none";
-        this.ctgSelect.value = "none";
-        // save product to local storage
-        var pdtList = _storage["default"].getProducts;
-        // console.log(pdtList);
-        pdtList.push(newProduct);
-        _storage["default"].saveProducts(pdtList);
-        // instant update html product list from storage
-        this.sortBySelect(this.sortSelect.value);
-        this.showListedProducts(pdtList);
-      } else {
+      var qty = Number(this.pdtQty.innerText);
+      if (this.pdtTitle.value.trim().length < 2) {
         alert("your entered title for category must be at least 2 characters!!!");
+        return;
       }
+      var newProduct = {
+        id: new Date().getTime(),
+        title: this.pdtTitle.value.trim(),
+        quantity: String(qty),
+        location: this.pdtLocation.value,
+        category: this.ctgSelect.value,
+        createdAt: new Date().toISOString()
+      };
+      this.pdtTitle.value = "";
+      this.pdtQty.innerText = "0";
+      this.pdtLocation.value = "none";
+      this.ctgSelect.value = "none";
+      var pdtList = _storage["default"].getProducts;
+      pdtList.push(newProduct);
+      _storage["default"].saveProducts(pdtList);
+      this.sortBySelect(this.sortSelect.value);
+      this.showListedProducts(pdtList);
     }
   }, {
     key: "showListedProducts",
     value: function showListedProducts(productList) {
-      var output = ' ';
+      var _this2 = this;
+      this.productCenter.textContent = "";
       productList.forEach(function (product) {
-        output += "   \n                <li class=\"flex items-center justify-between  w-full py-2 bg-blue-400/ text-white font-medium ss:min-w-[500px] ss:overflow-x-auto \">\n                    <p class=\"  basis-[16%] ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px] \">".concat(product.title, "</p>\n                    <p class=\"  basis-[16%] ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px] \">").concat(product.location, "</p>\n                    <p class=\"  basis-[16%] ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px] \">").concat(product.category, "</p>\n                    <p class=\"  basis-[16%] font-vazir ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px] \">").concat(product.persianDate, "</p>\n                    <p class=\"  border-2 border-slate-400 p-1 rounded-2xl ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px] \">").concat(product.quantity, "</p>\n                    <button type=\"button\" data-id=\"").concat(product.id, "\" class=\"pdt-dlt-btn flex items-center justify-center\" aria-label=\"Delete product ").concat(product.title, "\">\n                        <svg aria-hidden=\"true\" focusable=\"false\" class=\"stroke-red-500 dd:h-6 dd:w-6 ss:h-5 ss:w-5 cursor-pointer\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\"\n                            viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\">\n                            <path stroke-linecap=\"round\" stroke-linejoin=\"round\"\n                                d=\"m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0\" />\n                        </svg>\n                    </button>\n                </li>\n            ");
+        var item = document.createElement("li");
+        item.className = "flex items-center justify-between w-full py-2 bg-blue-400/ text-white font-medium ss:min-w-[500px] ss:overflow-x-auto";
+        var title = document.createElement("p");
+        title.className = "basis-[16%] ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
+        title.textContent = product.title;
+        var location = document.createElement("p");
+        location.className = "basis-[16%] ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
+        location.textContent = product.location;
+        var category = document.createElement("p");
+        category.className = "basis-[16%] ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
+        category.textContent = product.category;
+        var date = document.createElement("p");
+        date.className = "basis-[16%] font-vazir ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
+        date.textContent = getProductDisplayDate(product);
+        var quantity = document.createElement("p");
+        quantity.className = "border-2 border-slate-400 p-1 rounded-2xl ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
+        quantity.textContent = product.quantity;
+        var deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.dataset.id = product.id;
+        deleteButton.className = "pdt-dlt-btn flex items-center justify-center";
+        deleteButton.setAttribute("aria-label", "Delete product");
+        var svgNS = "http://www.w3.org/2000/svg";
+        var deleteIcon = document.createElementNS(svgNS, "svg");
+        deleteIcon.setAttribute("aria-hidden", "true");
+        deleteIcon.setAttribute("focusable", "false");
+        deleteIcon.setAttribute("class", "stroke-red-500 dd:h-6 dd:w-6 ss:h-5 ss:w-5 cursor-pointer");
+        deleteIcon.setAttribute("viewBox", "0 0 24 24");
+        deleteIcon.setAttribute("stroke-width", "1.5");
+        deleteIcon.setAttribute("stroke", "currentColor");
+        deleteIcon.setAttribute("fill", "none");
+        var path = document.createElementNS(svgNS, "path");
+        path.setAttribute("stroke-linecap", "round");
+        path.setAttribute("stroke-linejoin", "round");
+        path.setAttribute("d", "m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0");
+        deleteIcon.appendChild(path);
+        deleteButton.appendChild(deleteIcon);
+        item.append(title, location, category, date, quantity, deleteButton);
+        _this2.productCenter.appendChild(item);
       });
-      this.productCenter.innerHTML = output;
       this.productsAction();
     }
   }, {
     key: "productsAction",
     value: function productsAction() {
-      var _this2 = this;
-      // delete product event listener
+      var _this3 = this;
       var removeBtns = _toConsumableArray(document.querySelectorAll(".pdt-dlt-btn"));
       removeBtns.forEach(function (btn) {
         btn.addEventListener("click", function (e) {
-          _this2.deleteProduct(e);
+          _this3.deleteProduct(e);
         });
       });
     }
   }, {
     key: "toggleProductQty",
     value: function toggleProductQty(e) {
-      // console.log(e.currentTarget.id);
-      switch (e.currentTarget.id) {
-        case "incQty":
-          this.pdtQty.innerText++;
-          break;
-        case "decQty":
-          this.pdtQty.innerText--;
-          break;
+      var id = e.currentTarget.id;
+      var current = Number(this.pdtQty.innerText);
+      if (id === "incQty") {
+        this.pdtQty.innerText = String(current + 1);
+      } else if (id === "decQty") {
+        this.pdtQty.innerText = String(current - 1);
       }
     }
   }, {
@@ -136,7 +179,6 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
       var filteredProducts = addedProducts.filter(function (product) {
         return product.title.toLowerCase().trim().includes(normalizedSearchTerm);
       });
-      this.sortBySelect(this.sortSelect.value);
       this.showListedProducts(filteredProducts);
     }
   }, {
