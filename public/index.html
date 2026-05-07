@@ -173,6 +173,41 @@
         </div>
     </section>
     <!-- <script src="//unpkg.com/alpinejs" defer></script> -->
+    <footer class="mb-8 text-center text-stone-300 text-sm">
+        <a href="privacy-policy.html" class="text-green-500 underline">
+            Privacy Policy
+        </a>
+    </footer>
+
+    <div
+        id="cookieConsentBanner"
+        class="hidden fixed bottom-0 left-0 right-0 z-50 bg-[#1a262d] border-t-2 border-green-600 text-white px-5 py-4"
+    >
+        <div class="max-w-[900px] mx-auto flex flex-col gap-3 dd:flex-row dd:items-center dd:justify-between">
+            <p class="text-sm leading-6">
+                We use local storage to save your inventory data, category data, and cookie consent choice.
+                Please accept or reject this storage notice.
+                <a href="privacy-policy.html" class="text-green-500 underline">Read our Privacy Policy</a>.
+            </p>
+            <div class="flex gap-3">
+                <button
+                    id="rejectCookieBtn"
+                    type="button"
+                    class="px-4 py-2 border-2 border-green-600 text-green-600 rounded-lg font-semibold"
+                >
+                    Reject
+                </button>
+                <button
+                    id="acceptCookieBtn"
+                    type="button"
+                    class="px-4 py-2 bg-green-600 border-2 border-green-600 text-main rounded-lg font-semibold"
+                >
+                    Accept
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="build/webpack/bundle.js" type="module"></script>
     <!-- <script src="/src/js/app.js" type="module"></script> -->
     </div>

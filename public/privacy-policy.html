@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Inventory App</title>
+    <link rel="stylesheet" href="build/style.css">
+</head>
+<body class="font-outfit bg-main text-white min-h-screen px-5 py-10">
+    <main class="max-w-[800px] mx-auto">
+        <div class="flex items-center justify-between gap-4 mb-8">
+            <a href="index.html" class="text-green-500 underline">Back to Inventory App</a>
+            <div class="flex gap-2">
+                <button
+                    id="englishBtn"
+                    type="button"
+                    class="px-3 py-2 bg-green-600 text-main rounded-lg font-semibold"
+                >
+                    English
+                </button>
+                <button
+                    id="chineseBtn"
+                    type="button"
+                    class="px-3 py-2 border-2 border-green-600 text-green-600 rounded-lg font-semibold"
+                >
+                    中文
+                </button>
+            </div>
+        </div>
+
+        <section id="englishPolicy">
+            <h1 class="text-3xl font-bold text-green-600 mb-6">Privacy Policy</h1>
+
+            <p class="mb-4 leading-7">
+                This Inventory App stores data locally in your browser using localStorage.
+                The app does not send your inventory information to a server.
+            </p>
+
+            <h2 class="text-xl font-semibold text-green-500 mt-6 mb-3">Data We Store</h2>
+            <ul class="list-disc pl-6 leading-7">
+                <li>Product information, including title, quantity, location, category, and creation time.</li>
+                <li>Category information, including title, description, and creation time.</li>
+                <li>Your cookie consent choice, either accepted or rejected.</li>
+                <li>Your language preference on this Privacy Policy page.</li>
+            </ul>
+
+            <h2 class="text-xl font-semibold text-green-500 mt-6 mb-3">Why We Store This Data</h2>
+            <p class="mb-4 leading-7">
+                This data is stored so the app can remember your inventory, categories,
+                display preferences, and cookie consent choice when you return to the page.
+            </p>
+
+            <h2 class="text-xl font-semibold text-green-500 mt-6 mb-3">Cookies and Local Storage</h2>
+            <p class="mb-4 leading-7">
+                This app uses localStorage instead of server-side cookies. Your accept or reject choice is saved
+                in localStorage so the cookie consent banner is not repeatedly shown.
+            </p>
+
+            <h2 class="text-xl font-semibold text-green-500 mt-6 mb-3">How to Remove Your Data</h2>
+            <p class="mb-4 leading-7">
+                You can remove the stored data by clearing your browser site data or localStorage for this website.
+            </p>
+        </section>
+
+        <section id="chinesePolicy" class="hidden">
+            <h1 class="text-3xl font-bold text-green-600 mb-6">隐私政策</h1>
+
+            <p class="mb-4 leading-7">
+                这个库存管理应用会使用浏览器的 localStorage 在本地保存数据。
+                应用不会把你的库存信息发送到服务器。
+            </p>
+
+            <h2 class="text-xl font-semibold text-green-500 mt-6 mb-3">我们保存的数据</h2>
+            <ul class="list-disc pl-6 leading-7">
+                <li>商品信息，包括名称、数量、地点、分类和创建时间。</li>
+                <li>分类信息，包括分类名称、描述和创建时间。</li>
+                <li>你的 Cookie 同意选择，也就是接受或拒绝。</li>
+                <li>你在隐私政策页面选择的语言偏好。</li>
+            </ul>
+
+            <h2 class="text-xl font-semibold text-green-500 mt-6 mb-3">为什么保存这些数据</h2>
+            <p class="mb-4 leading-7">
+                保存这些数据是为了让应用下次打开时还能记住你的库存、分类、显示偏好和 Cookie 选择。
+            </p>
+
+            <h2 class="text-xl font-semibold text-green-500 mt-6 mb-3">Cookie 和本地存储</h2>
+            <p class="mb-4 leading-7">
+                这个应用主要使用 localStorage，而不是服务器 Cookie。你的接受或拒绝选择会保存在 localStorage 里，
+                这样 Cookie 提示横幅不会每次打开页面都重复出现。
+            </p>
+
+            <h2 class="text-xl font-semibold text-green-500 mt-6 mb-3">如何删除你的数据</h2>
+            <p class="mb-4 leading-7">
+                你可以通过浏览器设置清除该网站的站点数据或 localStorage，从而删除这些保存的数据。
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const englishBtn = document.querySelector("#englishBtn");
+        const chineseBtn = document.querySelector("#chineseBtn");
+        const englishPolicy = document.querySelector("#englishPolicy");
+        const chinesePolicy = document.querySelector("#chinesePolicy");
+
+        function showLanguage(language) {
+            const isChinese = language === "zh";
+
+            englishPolicy.classList.toggle("hidden", isChinese);
+            chinesePolicy.classList.toggle("hidden", !isChinese);
+
+            englishBtn.className = isChinese
+                ? "px-3 py-2 border-2 border-green-600 text-green-600 rounded-lg font-semibold"
+                : "px-3 py-2 bg-green-600 text-main rounded-lg font-semibold";
+
+            chineseBtn.className = isChinese
+                ? "px-3 py-2 bg-green-600 text-main rounded-lg font-semibold"
+                : "px-3 py-2 border-2 border-green-600 text-green-600 rounded-lg font-semibold";
+
+            localStorage.setItem("privacyPolicyLanguage", language);
+        }
+
+        englishBtn.addEventListener("click", () => showLanguage("en"));
+        chineseBtn.addEventListener("click", () => showLanguage("zh"));
+
+        showLanguage(localStorage.getItem("privacyPolicyLanguage") || "en");
+    </script>
+</body>
+</html>
