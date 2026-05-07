@@ -56,6 +56,21 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
       this.sortBySelect(this.sortSelect.value);
     }
   }, {
+    key: "formatProductDate",
+    value: function formatProductDate(product) {
+      if (!product.createdAt) {
+        return product.persianDate || "";
+      }
+      var date = new Date(product.createdAt);
+      if (Number.isNaN(date.getTime())) {
+        return product.persianDate || "";
+      }
+      var year = date.getFullYear();
+      var month = String(date.getMonth() + 1).padStart(2, "0");
+      var day = String(date.getDate()).padStart(2, "0");
+      return "".concat(year, "-").concat(month, "-").concat(day);
+    }
+  }, {
     key: "addNewProduct",
     value: function addNewProduct() {
       var qty = (0, _productValidation.parseQuantityDisplay)(this.pdtQty.innerText);
@@ -89,7 +104,7 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
         quantity: String(qty),
         location: this.pdtLocation.value,
         category: this.ctgSelect.value,
-        persianDate: new Date().toLocaleDateString("fa-IR")
+        createdAt: new Date().toISOString()
       };
       this.pdtTitle.value = "";
       this.pdtQty.innerText = "0";
@@ -120,7 +135,7 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
         category.textContent = product.category;
         var date = document.createElement("p");
         date.className = "basis-[16%] font-vazir ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
-        date.textContent = product.persianDate || "";
+        date.textContent = _this2.formatProductDate(product);
         var quantity = document.createElement("p");
         quantity.className = "border-2 border-slate-400 p-1 rounded-2xl ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
         quantity.textContent = product.quantity;
