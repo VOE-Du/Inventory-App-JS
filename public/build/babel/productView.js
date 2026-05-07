@@ -20,9 +20,10 @@ function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), 
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 var ProductView = exports["default"] = /*#__PURE__*/function () {
-  function ProductView() {
+  function ProductView(i18n) {
     var _this = this;
     _classCallCheck(this, ProductView);
+    this.i18n = i18n;
     this.pdtTitle = document.querySelector("#productTitle");
     this.pdtIncQty = document.querySelector("#incQty");
     this.pdtDecQty = document.querySelector("#decQty");
@@ -48,12 +49,32 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
     this.sortSelect.addEventListener("change", function (e) {
       _this.sortBySelect(e.target.value);
     });
+    document.addEventListener("languagechange", function () {
+      _this.showListedProducts(_this.getCurrentProductList());
+    });
   }
   return _createClass(ProductView, [{
+    key: "text",
+    value: function text(key) {
+      return this.i18n.t(key);
+    }
+  }, {
     key: "setupApp",
     value: function setupApp() {
       this.showListedProducts(_storage["default"].getProducts);
       this.sortBySelect(this.sortSelect.value);
+    }
+  }, {
+    key: "getCurrentProductList",
+    value: function getCurrentProductList() {
+      var searchTerm = this.searchInput.value.toLowerCase().trim();
+      var products = _storage["default"].getProducts;
+      if (!searchTerm) {
+        return products;
+      }
+      return products.filter(function (product) {
+        return product.title.toLowerCase().trim().includes(searchTerm);
+      });
     }
   }, {
     key: "formatProductDate",
@@ -82,19 +103,19 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
       });
       if (!check.ok) {
         if (check.errors.includes("title")) {
-          alert("Your product title must be at least 2 non-space characters.");
+          alert(this.text("invalidProductTitle"));
           return;
         }
         if (check.errors.includes("location")) {
-          alert("Please select a valid storage location.");
+          alert(this.text("invalidLocation"));
           return;
         }
         if (check.errors.includes("category")) {
-          alert("Please select a category.");
+          alert(this.text("invalidCategory"));
           return;
         }
         if (check.errors.includes("quantity")) {
-          alert("Quantity must be zero or a positive whole number.");
+          alert(this.text("invalidQuantity"));
           return;
         }
       }
@@ -114,7 +135,6 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
       pdtList.push(newProduct);
       _storage["default"].saveProducts(pdtList);
       this.sortBySelect(this.sortSelect.value);
-      this.showListedProducts(pdtList);
     }
   }, {
     key: "showListedProducts",
@@ -143,7 +163,7 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
         deleteButton.type = "button";
         deleteButton.dataset.id = product.id;
         deleteButton.className = "pdt-dlt-btn flex items-center justify-center";
-        deleteButton.setAttribute("aria-label", "Delete product");
+        deleteButton.setAttribute("aria-label", _this2.text("deleteProduct"));
         var svgNS = "http://www.w3.org/2000/svg";
         var deleteIcon = document.createElementNS(svgNS, "svg");
         deleteIcon.setAttribute("aria-hidden", "true");
@@ -191,7 +211,6 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
     value: function deleteProduct(e) {
       var productId = Number(e.currentTarget.dataset.id);
       _storage["default"].removeProduct(productId);
-      this.showListedProducts(_storage["default"].getProducts);
       this.sortBySelect(this.sortSelect.value);
     }
   }, {
@@ -207,7 +226,7 @@ var ProductView = exports["default"] = /*#__PURE__*/function () {
   }, {
     key: "sortBySelect",
     value: function sortBySelect(sortType) {
-      var saveProducts = _storage["default"].getProducts;
+      var saveProducts = this.getCurrentProductList();
       var sortedProducts = [];
       if (sortType === "newest") {
         sortedProducts = saveProducts.slice().sort(function (a, b) {

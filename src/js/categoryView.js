@@ -1,7 +1,8 @@
 import Storage from "./storage.js";
 
 export default class CategoryView {
-    constructor() {
+    constructor(i18n) {
+        this.i18n = i18n;
         this.ctgTitleInput = document.querySelector("#categoryTitle");
         this.ctgDescInput = document.querySelector("#categoryDescription");
         this.ctgCacelBtn = document.querySelector("#categoryCanelBtn");
@@ -16,6 +17,14 @@ export default class CategoryView {
             this.ctgTitleInput.value = "";
             this.ctgDescInput.value = "";
         });
+
+        document.addEventListener("languagechange", () => {
+            this.instantCtgUpdate(Storage.getCategories());
+        });
+    }
+
+    text(key) {
+        return this.i18n.t(key);
     }
 
     setupApp() {
@@ -42,9 +51,7 @@ export default class CategoryView {
             if (existedItem) {
                 existedItem.title = newCategroy.title;
                 existedItem.description = newCategroy.description;
-                alert(
-                    "this category name has been added before so we will update the category description!"
-                );
+                alert(this.text("duplicatedCategory"));
                 Storage.saveCategories(savedCategories);
                 this.instantCtgUpdate(savedCategories);
                 return;
@@ -57,16 +64,20 @@ export default class CategoryView {
             Storage.saveCategories(savedCategories);
             this.instantCtgUpdate(savedCategories);
         } else {
-            alert(
-                "your entered title for category must be at least 2 characters!!!"
-            );
+            alert(this.text("invalidCategoryTitle"));
         }
     }
 
     instantCtgUpdate(categories) {
         const ctgListTitles = categories.map((obj) => obj.title.trim());
 
-        this.ctgSelect.innerHTML = ` <option selected value="none">- select category -</option>  `;
+        this.ctgSelect.innerHTML = "";
+
+        const defaultOption = document.createElement("option");
+        defaultOption.selected = true;
+        defaultOption.value = "none";
+        defaultOption.textContent = this.text("selectCategory");
+        this.ctgSelect.append(defaultOption);
 
         ctgListTitles.forEach((option) => {
             const newOption = document.createElement("option");

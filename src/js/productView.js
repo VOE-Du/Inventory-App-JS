@@ -6,7 +6,8 @@ import {
 } from "./productValidation.js";
 
 export default class ProductView {
-    constructor() {
+    constructor(i18n) {
+        this.i18n = i18n;
         this.pdtTitle = document.querySelector("#productTitle");
         this.pdtIncQty = document.querySelector("#incQty");
         this.pdtDecQty = document.querySelector("#decQty");
@@ -36,11 +37,32 @@ export default class ProductView {
         this.sortSelect.addEventListener("change", (e) => {
             this.sortBySelect(e.target.value);
         });
+
+        document.addEventListener("languagechange", () => {
+            this.showListedProducts(this.getCurrentProductList());
+        });
+    }
+
+    text(key) {
+        return this.i18n.t(key);
     }
 
     setupApp() {
         this.showListedProducts(Storage.getProducts);
         this.sortBySelect(this.sortSelect.value);
+    }
+
+    getCurrentProductList() {
+        const searchTerm = this.searchInput.value.toLowerCase().trim();
+        const products = Storage.getProducts;
+
+        if (!searchTerm) {
+            return products;
+        }
+
+        return products.filter((product) =>
+            product.title.toLowerCase().trim().includes(searchTerm)
+        );
     }
 
     formatProductDate(product) {
@@ -72,21 +94,19 @@ export default class ProductView {
 
         if (!check.ok) {
             if (check.errors.includes("title")) {
-                alert(
-                    "Your product title must be at least 2 non-space characters."
-                );
+                alert(this.text("invalidProductTitle"));
                 return;
             }
             if (check.errors.includes("location")) {
-                alert("Please select a valid storage location.");
+                alert(this.text("invalidLocation"));
                 return;
             }
             if (check.errors.includes("category")) {
-                alert("Please select a category.");
+                alert(this.text("invalidCategory"));
                 return;
             }
             if (check.errors.includes("quantity")) {
-                alert("Quantity must be zero or a positive whole number.");
+                alert(this.text("invalidQuantity"));
                 return;
             }
         }
@@ -110,7 +130,6 @@ export default class ProductView {
         Storage.saveProducts(pdtList);
 
         this.sortBySelect(this.sortSelect.value);
-        this.showListedProducts(pdtList);
     }
 
     showListedProducts(productList) {
@@ -150,10 +169,9 @@ export default class ProductView {
             deleteButton.type = "button";
             deleteButton.dataset.id = product.id;
             deleteButton.className = "pdt-dlt-btn flex items-center justify-center";
-            deleteButton.setAttribute("aria-label", "Delete product");
+            deleteButton.setAttribute("aria-label", this.text("deleteProduct"));
 
             const svgNS = "http://www.w3.org/2000/svg";
-
             const deleteIcon = document.createElementNS(svgNS, "svg");
             deleteIcon.setAttribute("aria-hidden", "true");
             deleteIcon.setAttribute("focusable", "false");
@@ -199,20 +217,15 @@ export default class ProductView {
         const current = parseQuantityDisplay(this.pdtQty.innerText);
 
         if (id === "incQty") {
-            this.pdtQty.innerText = String(
-                nextQuantityAfterToggle(current, true)
-            );
+            this.pdtQty.innerText = String(nextQuantityAfterToggle(current, true));
         } else if (id === "decQty") {
-            this.pdtQty.innerText = String(
-                nextQuantityAfterToggle(current, false)
-            );
+            this.pdtQty.innerText = String(nextQuantityAfterToggle(current, false));
         }
     }
 
     deleteProduct(e) {
         const productId = Number(e.currentTarget.dataset.id);
         Storage.removeProduct(productId);
-        this.showListedProducts(Storage.getProducts);
         this.sortBySelect(this.sortSelect.value);
     }
 
@@ -227,7 +240,7 @@ export default class ProductView {
     }
 
     sortBySelect(sortType) {
-        const saveProducts = Storage.getProducts;
+        const saveProducts = this.getCurrentProductList();
         let sortedProducts = [];
 
         if (sortType === "newest") {
