@@ -43,6 +43,24 @@ export default class ProductView {
         this.sortBySelect(this.sortSelect.value);
     }
 
+    formatProductDate(product) {
+        if (!product.createdAt) {
+            return product.persianDate || "";
+        }
+
+        const date = new Date(product.createdAt);
+
+        if (Number.isNaN(date.getTime())) {
+            return product.persianDate || "";
+        }
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
     addNewProduct() {
         const qty = parseQuantityDisplay(this.pdtQty.innerText);
         const check = validateNewProductDraft({
@@ -79,7 +97,7 @@ export default class ProductView {
             quantity: String(qty),
             location: this.pdtLocation.value,
             category: this.ctgSelect.value,
-            persianDate: new Date().toLocaleDateString("fa-IR"),
+            createdAt: new Date().toISOString(),
         };
 
         this.pdtTitle.value = "";
@@ -121,7 +139,7 @@ export default class ProductView {
             const date = document.createElement("p");
             date.className =
                 "basis-[16%] font-vazir ww:text-base xx:text-[15px] dd:text-[14px] ss:text-[13px]";
-            date.textContent = product.persianDate || "";
+            date.textContent = this.formatProductDate(product);
 
             const quantity = document.createElement("p");
             quantity.className =
