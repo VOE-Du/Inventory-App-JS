@@ -10,7 +10,10 @@
 <body class="font-outfit bg-main text-white min-h-screen px-5 py-10">
     <main class="max-w-[800px] mx-auto">
         <div class="flex items-center justify-between gap-4 mb-8">
-            <a href="index.html" class="text-green-500 underline">Back to Inventory App</a>
+            <a id="backToAppLink" href="index.html" class="text-green-500 underline">
+                Back to Inventory App
+            </a>
+
             <div class="flex gap-2">
                 <button
                     id="englishBtn"
@@ -102,9 +105,13 @@
         const chineseBtn = document.querySelector("#chineseBtn");
         const englishPolicy = document.querySelector("#englishPolicy");
         const chinesePolicy = document.querySelector("#chinesePolicy");
+        const backToAppLink = document.querySelector("#backToAppLink");
+
 
         function showLanguage(language) {
             const isChinese = language === "zh";
+
+            backToAppLink.textContent = isChinese ? "返回库存应用" : "Back to Inventory App";
 
             englishPolicy.classList.toggle("hidden", isChinese);
             chinesePolicy.classList.toggle("hidden", !isChinese);
