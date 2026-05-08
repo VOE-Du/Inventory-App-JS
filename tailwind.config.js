@@ -1,15 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./public/**/*.html", " ./src/js/app.js "],
+  content: ["./public/**/*.html", "./src/js/**/*.js"],
   // darkMode: 'class',
   theme: {
     extend: {
       screens: {
-        'zz':'700px',
-        'ww':'560px',
-        'xx':'480px',
-        'dd':'365px',
-        'ss':'285px',
+        'zz': '700px',
+        'ww': '560px',
+        'xx': '480px',
+        'dd': '365px',
+        'ss': '285px',
       },
       colors: {
         // 'main': '#A8763E',
@@ -23,7 +23,7 @@ module.exports = {
         // 'main':'#6c757d',
         // 'main':'#b9375e',
         // 'main':'#ffa200',
-        'main':'#141E22',
+        'main': '#141E22',
       },
       fontFamily: {
         outfit: ['Outfit'],
@@ -33,4 +33,3 @@ module.exports = {
   },
   plugins: [],
 }
-
