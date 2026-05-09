@@ -12,7 +12,6 @@ module.exports = {
     collectCoverage: true,
     collectCoverageFrom: [
         "src/js/**/*.js",
-        "!src/js/app.js",
         "!src/js/__tests__/**/*.js",
     ],
     coverageDirectory: "coverage",
